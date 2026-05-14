@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="ASCII"?>
+<sdkproject:SdkProject xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:sdkproject="http://www.xilinx.com/sdkproject" name="mb_edge" location="D:/FPGA/Labaratory-2026/lab_10/mb_edge" platform="D:/FPGA/Labaratory-2026/lab_10/mb_edge_wrapper/export/mb_edge_wrapper/mb_edge_wrapper.xpfm" platformUID="xilinx:nexys4_ddr::0.0(custom)" systemProject="mb_edge_system" sysConfig="mb_edge_wrapper" runtime="cpp" cpu="standalone_microblaze_0" cpuInstance="microblaze_0" os="standalone" mssSignature="b0eaa932086fc39120446b6379e4be0c">
+  <configuration name="Debug" id="xilinx.gnu.mb.exe.debug.1331814078">
+    <configBuildOptions xsi:type="sdkproject:SdkOptions"/>
+    <lastBuildOptions xsi:type="sdkproject:SdkOptions"/>
+  </configuration>
+  <configuration name="Release" id="xilinx.gnu.mb.exe.release.922020004" dirty="true">
+    <configBuildOptions xsi:type="sdkproject:SdkOptions"/>
+  </configuration>
+  <template appTemplateName="empty_application"/>
+</sdkproject:SdkProject>

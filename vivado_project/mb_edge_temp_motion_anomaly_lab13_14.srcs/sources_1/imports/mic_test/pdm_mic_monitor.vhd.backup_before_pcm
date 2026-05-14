@@ -1,0 +1,97 @@
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.NUMERIC_STD.ALL;
+
+entity pdm_mic_monitor is
+    port (
+        clk100    : in  std_logic;
+        resetn    : in  std_logic;
+
+        mic_data  : in  std_logic;
+        mic_clk   : out std_logic;
+        mic_lrsel : out std_logic;
+
+        level     : out std_logic_vector(15 downto 0)
+    );
+end pdm_mic_monitor;
+
+architecture rtl of pdm_mic_monitor is
+
+    -- 100 MHz / (2 * 20) = 2.5 MHz microphone clock
+    constant CLK_DIV_MAX : unsigned(5 downto 0) := to_unsigned(19, 6);
+
+    signal div_cnt       : unsigned(5 downto 0) := (others => '0');
+    signal mic_clk_reg   : std_logic := '0';
+    signal mic_clk_prev  : std_logic := '0';
+
+    -- Count 1024 PDM bits, then calculate signal activity.
+    signal sample_cnt    : unsigned(9 downto 0) := (others => '0');
+    signal ones_cnt      : unsigned(10 downto 0) := (others => '0');
+
+    signal level_reg     : unsigned(15 downto 0) := (others => '0');
+
+    signal centered      : signed(11 downto 0) := (others => '0');
+    signal magnitude     : unsigned(11 downto 0) := (others => '0');
+
+begin
+
+    mic_clk   <= mic_clk_reg;
+    mic_lrsel <= '0';
+    level     <= std_logic_vector(level_reg);
+
+    process(clk100)
+    begin
+        if rising_edge(clk100) then
+            if resetn = '0' then
+                div_cnt      <= (others => '0');
+                mic_clk_reg  <= '0';
+                mic_clk_prev <= '0';
+                sample_cnt   <= (others => '0');
+                ones_cnt     <= (others => '0');
+                level_reg    <= (others => '0');
+                centered     <= (others => '0');
+                magnitude    <= (others => '0');
+            else
+                mic_clk_prev <= mic_clk_reg;
+
+                if div_cnt = CLK_DIV_MAX then
+                    div_cnt     <= (others => '0');
+                    mic_clk_reg <= not mic_clk_reg;
+                else
+                    div_cnt <= div_cnt + 1;
+                end if;
+
+                -- Sample PDM on generated mic clock rising edge.
+                if mic_clk_prev = '0' and mic_clk_reg = '1' then
+
+                    if mic_data = '1' then
+                        ones_cnt <= ones_cnt + 1;
+                    end if;
+
+                    if sample_cnt = to_unsigned(1023, 10) then
+
+                        -- Center around 512 ones per 1024 bits.
+                        centered <= signed(resize(ones_cnt, 12)) - to_signed(512, 12);
+
+                        if centered < 0 then
+                            magnitude <= unsigned(-centered);
+                        else
+                            magnitude <= unsigned(centered);
+                        end if;
+
+                        -- Scale magnitude for easy software/display use.
+                        -- Quiet room should be low. Voice/clap should rise.
+                        level_reg <= resize(magnitude, 16) sll 4;
+
+                        sample_cnt <= (others => '0');
+                        ones_cnt   <= (others => '0');
+                    else
+                        sample_cnt <= sample_cnt + 1;
+                    end if;
+                end if;
+            end if;
+        end if;
+    end process;
+
+end rtl;
+
