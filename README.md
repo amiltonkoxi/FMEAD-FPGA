@@ -355,9 +355,8 @@ This feature was prepared but not fully validated as part of the final demonstra
 
 ## Demo Video
 
-A short hardware demonstration video is available here:
+[Watch the hardware demo](media/videos/demo-video.mp4)
 
-[Watch demo video](media/videos/demo-video.mov)
 
 ---
 
